@@ -1,7 +1,8 @@
-import { Github, Moon, RefreshCw, Sun } from "lucide-react"
+import { Eye, Github, Moon, RefreshCw, Sun } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { VISITOR_BADGE_URL } from "@/lib/data"
 import { useTheme } from "@/lib/theme"
 
 interface HeaderProps {
@@ -41,6 +42,14 @@ export function Header({ fetchedAt, refreshing, onRefresh }: HeaderProps) {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
+          <div
+            className="hidden items-center gap-1.5 rounded-lg border bg-muted/40 px-2 py-1.5 lg:flex"
+            title="GitHub Pages 累计访问量（第三方计数服务，每次页面加载 +1）"
+          >
+            <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">访问量</span>
+            <img src={VISITOR_BADGE_URL} alt="GitHub Pages 访问量" className="h-5 w-auto" />
+          </div>
           <Button
             variant="outline"
             size="sm"

@@ -11,10 +11,13 @@
 
 ## 在线访问
 
-- **GitHub Pages**：<https://baiyun200.github.io/dsh-dashboard/>
+- **GitHub Pages**：<https://baiyun200.github.io/dsh-dashboard/>　[![访问量](https://visitor-badge.laobi.icu/badge?page_id=baiyun200.dsh-dashboard)](https://baiyun200.github.io/dsh-dashboard/)
 - 由 GitHub Actions 每日自动构建部署：每天 01:30 UTC（北京时间 09:30）重新抓取 `dsh-plugin` 话题数据并发布；推送 `main` 或手动触发（Actions → 每日构建 & 部署 GitHub Pages → Run workflow）也会重新部署。
 
 ## 功能
+
+- 👁️ **访问量展示**：页面右上角实时显示 GitHub Pages 累计访问量（第三方计数服务）
+- 📈 **Star 增长趋势**：插件详情抽屉内展示每个仓库的 Star 历史曲线（star-history.com），数据不可用时优雅降级
 
 - 📊 **统计卡片**：收录仓库数、精选插件数、累计 Star/Fork、近 30 天活跃、开发语言
 - 📈 **图表区**：

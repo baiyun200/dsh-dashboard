@@ -48,6 +48,13 @@ try {
   })
   check("右上角链接指向本仓库", ghLink === "https://github.com/baiyun200/dsh-dashboard", `实际 ${ghLink}`)
 
+  // 1c. 访问量徽章
+  const badge = await page.evaluate(() => {
+    const img = [...document.querySelectorAll("header img")].find((x) => x.src?.includes("visitor-badge"))
+    return img?.src ?? null
+  })
+  check("访问量徽章存在", !!badge, badge ?? "未找到")
+
   // 2. 表格行数（默认 20/页）
   const rowCount = await page.$$eval("table tbody tr", (rows) => rows.length)
   check("表格行数 = 20", rowCount === 20, `实际 ${rowCount}`)
@@ -80,10 +87,11 @@ try {
 
   // 5. 详情抽屉：点击第一行
   await page.$$eval("table tbody tr", (rows) => rows[0]?.click())
-  await new Promise((r) => setTimeout(r, 800))
+  await new Promise((r) => setTimeout(r, 1200))
   const detailText = await page.evaluate(() => document.body.innerText)
   check("详情抽屉打开（含安装命令）", detailText.includes("安装命令") && detailText.includes("GitHub"))
   check("详情抽屉显示统计数据", detailText.includes("Star") && detailText.includes("Fork"))
+  check("详情抽屉含 Star 增长趋势", detailText.includes("Star 增长趋势"))
   // 关闭抽屉
   await page.keyboard.press("Escape")
   await new Promise((r) => setTimeout(r, 500))
