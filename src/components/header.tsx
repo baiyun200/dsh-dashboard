@@ -56,11 +56,11 @@ export function Header({ fetchedAt, refreshing, onRefresh }: HeaderProps) {
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           <a
-            href="https://github.com/deepseek-ai/deepseek-harness"
+            href="https://github.com/baiyun200/dsh-dashboard"
             target="_blank"
             rel="noreferrer"
             className={buttonVariants({ variant: "ghost", size: "icon" })}
-            title="DeepSeek Harness 官方仓库"
+            title="本看板源码仓库"
           >
             <Github className="h-4 w-4" />
           </a>

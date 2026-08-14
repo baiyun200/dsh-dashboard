@@ -43,7 +43,8 @@ function Dashboard() {
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true)
-    const result = await fetchTopicRepos(snapshot.plugins)
+    // 以当前展示的数据为基准合并，刷新后仓库数量只增不减
+    const result = await fetchTopicRepos(data.plugins)
     setRefreshing(false)
     if (!result) {
       toast.error("刷新失败", {
@@ -65,7 +66,7 @@ function Dashboard() {
     toast.success("数据已刷新", {
       description: `已更新 ${result.plugins.length} 个仓库 · 话题总数 ${result.totalTopic}`,
     })
-  }, [])
+  }, [data])
 
   useEffect(() => {
     document.title = "DSH 插件看板 · DeepSeek Harness 插件生态"

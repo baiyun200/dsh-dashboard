@@ -41,6 +41,13 @@ try {
   check("图表：语言分布", statText.includes("语言分布"))
   check("图表：Star 排行 Top 10", statText.includes("Star 排行 Top 10"))
 
+  // 1b. 右上角 GitHub 链接指向本仓库
+  const ghLink = await page.evaluate(() => {
+    const a = [...document.querySelectorAll("header a")].find((x) => x.getAttribute("href")?.includes("github.com"))
+    return a?.getAttribute("href") ?? null
+  })
+  check("右上角链接指向本仓库", ghLink === "https://github.com/baiyun200/dsh-dashboard", `实际 ${ghLink}`)
+
   // 2. 表格行数（默认 20/页）
   const rowCount = await page.$$eval("table tbody tr", (rows) => rows.length)
   check("表格行数 = 20", rowCount === 20, `实际 ${rowCount}`)
@@ -91,22 +98,36 @@ try {
   const darkAfter = await page.evaluate(() => document.documentElement.classList.contains("dark"))
   check("主题切换生效", darkBefore !== darkAfter, `dark: ${darkBefore} → ${darkAfter}`)
 
-  // 7. 刷新按钮（可能命中 GitHub 限流，应优雅降级为 toast）
+  // 7. 刷新按钮：数量只增不减，且有 toast 反馈
+  const countBefore = await page.evaluate(() => {
+    const label = [...document.querySelectorAll("p")].find((p) => p.textContent === "话题收录仓库")
+    const value = label?.parentElement?.querySelectorAll("p")[1]
+    return value ? parseInt(value.textContent.replace(/,/g, ""), 10) : null
+  })
   await page.evaluate(() => {
     const btn = [...document.querySelectorAll("button")].find((b) => b.textContent?.includes("刷新数据"))
     btn?.click()
   })
   // sonner toast 约 4s 自动消失，轮询捕捉
   let toastSeen = false
-  for (let i = 0; i < 12; i++) {
+  let countAfter = countBefore
+  for (let i = 0; i < 60; i++) {
     const t = await page.evaluate(() => document.body.innerText)
-    if (t.includes("数据已刷新") || t.includes("刷新失败")) {
-      toastSeen = true
-      break
-    }
+    if (t.includes("数据已刷新") || t.includes("刷新失败")) toastSeen = true
+    countAfter = await page.evaluate(() => {
+      const label = [...document.querySelectorAll("p")].find((p) => p.textContent === "话题收录仓库")
+      const value = label?.parentElement?.querySelectorAll("p")[1]
+      return value ? parseInt(value.textContent.replace(/,/g, ""), 10) : null
+    })
+    if (toastSeen && countAfter !== countBefore) break
     await new Promise((r) => setTimeout(r, 400))
   }
   check("刷新后有反馈（toast 或数据更新）", toastSeen)
+  check(
+    "刷新后仓库数量只增不减",
+    countAfter !== null && countAfter >= (countBefore ?? 0),
+    `刷新前 ${countBefore} → 刷新后 ${countAfter}`,
+  )
 } catch (err) {
   check("测试执行异常", false, String(err).slice(0, 300))
 } finally {

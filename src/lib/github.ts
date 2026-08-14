@@ -106,28 +106,38 @@ export interface RefreshResult {
   fetchedAt: string
 }
 
-/** 拉取前 3 页（Top 300），失败返回 null */
-export async function fetchTopicRepos(snapshot: Plugin[]): Promise<RefreshResult | null> {
+/**
+ * 从 GitHub API 实时刷新 `dsh-plugin` 话题数据。
+ * 搜索接口未认证限额 10 次/分钟：这里顺序拉全 9 页（每页 100，共 ~900），
+ * 与传入的现有数据按仓库 id 合并（API 数据优先覆盖、新仓库追加），
+ * 因此刷新后仓库数量只增不减。遇到限流（403/429）提前停止，不中断已抓取部分。
+ */
+export async function fetchTopicRepos(base: Plugin[]): Promise<RefreshResult | null> {
   try {
-    const pages = await Promise.all(
-      [1, 2, 3].map(async (page) => {
-        const res = await fetch(
-          `https://api.github.com/search/repositories?q=topic:dsh-plugin&sort=stars&order=desc&per_page=100&page=${page}`,
-          { headers: { Accept: "application/vnd.github+json" } },
-        )
-        if (!res.ok) throw new Error(`GitHub API ${res.status}`)
-        return (await res.json()) as { total_count?: number; items?: RawRepo[] }
-      }),
-    )
-    const seen = new Set<string>()
-    const raw = pages.flatMap((p) => p.items ?? []).filter((r) => {
-      if (seen.has(r.full_name)) return false
-      seen.add(r.full_name)
-      return true
-    })
-    if (raw.length === 0) return null
-    const plugins = raw.map((r) => normalize(r, snapshot)).sort((a, b) => b.stars - a.stars)
-    const totalTopic = pages[0].total_count ?? 0
+    const byId = new Map(base.map((p) => [p.id.toLowerCase(), p]))
+    let totalTopic = 0
+    let fetchedAny = false
+    for (let page = 1; page <= 9; page++) {
+      const res = await fetch(
+        `https://api.github.com/search/repositories?q=topic:dsh-plugin&sort=stars&order=desc&per_page=100&page=${page}`,
+        { headers: { Accept: "application/vnd.github+json" } },
+      )
+      if (!res.ok) {
+        if (res.status === 403 || res.status === 429) break // 限流，保留已抓取部分
+        continue
+      }
+      const data = (await res.json()) as { total_count?: number; items?: RawRepo[] }
+      totalTopic = Math.max(totalTopic, data.total_count ?? 0)
+      const items = data.items ?? []
+      for (const raw of items) {
+        byId.set(raw.full_name.toLowerCase(), normalize(raw, base))
+      }
+      fetchedAny = true
+      if (items.length < 100) break // 没有更多页
+      await new Promise((r) => setTimeout(r, 400)) // 轻微延时，避免瞬时限流
+    }
+    if (!fetchedAny) return null
+    const plugins = [...byId.values()].sort((a, b) => b.stars - a.stars)
     return {
       plugins,
       stats: computeStats(plugins, totalTopic),
