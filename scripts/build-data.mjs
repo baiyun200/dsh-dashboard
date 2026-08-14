@@ -16,7 +16,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..")
 // ---------- 1. 读取 GitHub 快照 ----------
 const pages = []
 let totalTopic = 0
-for (let p = 1; p <= 6; p++) {
+for (let p = 1; p <= 9; p++) {
   try {
     const d = JSON.parse(readFileSync(join(root, `data/raw/topic_page${p}.json`), "utf8"))
     pages.push(...(d.items ?? []))

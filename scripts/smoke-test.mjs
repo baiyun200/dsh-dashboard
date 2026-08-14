@@ -108,10 +108,10 @@ try {
     const btn = [...document.querySelectorAll("button")].find((b) => b.textContent?.includes("刷新数据"))
     btn?.click()
   })
-  // sonner toast 约 4s 自动消失，轮询捕捉
+  // sonner toast 约 4s 自动消失，轮询捕捉；9 页顺序抓取在线上浏览器约需 20-30s
   let toastSeen = false
   let countAfter = countBefore
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 110; i++) {
     const t = await page.evaluate(() => document.body.innerText)
     if (t.includes("数据已刷新") || t.includes("刷新失败")) toastSeen = true
     countAfter = await page.evaluate(() => {
@@ -119,8 +119,8 @@ try {
       const value = label?.parentElement?.querySelectorAll("p")[1]
       return value ? parseInt(value.textContent.replace(/,/g, ""), 10) : null
     })
-    if (toastSeen && countAfter !== countBefore) break
-    await new Promise((r) => setTimeout(r, 400))
+    if ((toastSeen && countAfter !== countBefore) || countAfter !== countBefore) break
+    await new Promise((r) => setTimeout(r, 500))
   }
   check("刷新后有反馈（toast 或数据更新）", toastSeen)
   check(
