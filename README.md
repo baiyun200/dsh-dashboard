@@ -9,12 +9,6 @@
 
 ![DSH 插件看板首页](docs/screenshot.png)
 
-## Star 增长趋势
-
-![Star 增长趋势](docs/star-history.svg)
-
-> 由 GitHub Actions 每日自动更新（使用 GITHUB_TOKEN 拉取官方 Stargazer 时间线生成）。
-
 ## 在线访问
 
 - **GitHub Pages**：<https://baiyun200.github.io/dsh-dashboard/>　[![访问量](https://visitor-badge.laobi.icu/badge?page_id=baiyun200.dsh-dashboard)](https://baiyun200.github.io/dsh-dashboard/)
@@ -60,7 +54,7 @@ npm run data                 # 归一化 + 中文分类 → src/data/plugins.jso
 
 ```bash
 npm run preview    # 先启动预览
-node scripts/smoke-test.mjs   # puppeteer-core + 本机 Chrome 的 14 项端到端冒烟测试
+node scripts/smoke-test.mjs   # puppeteer-core + 本机 Chrome 的 18 项端到端冒烟测试
 ```
 
 ## 目录结构
@@ -82,3 +76,7 @@ scripts/
 ## 免责声明
 
 本看板为社区项目，与 DeepSeek 官方无关联；收录不代表官方背书。安装第三方插件会执行其代码，请自行审阅源码。
+
+## Star 增长趋势
+
+![Star 增长趋势](docs/star-history.svg)

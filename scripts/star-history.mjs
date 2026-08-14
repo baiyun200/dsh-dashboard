@@ -96,25 +96,46 @@ function renderSvg(series, total) {
   }
 
   const max = Math.max(...series.map((p) => p.count), 1)
-  const xAt = (i) => P.l + (i / (series.length - 1)) * iw
   const yAt = (v) => P.t + ih - (v / max) * ih
-  const path = series.map((p, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(p.count).toFixed(1)}`).join(" ")
-  const area = `${path} L${xAt(series.length - 1).toFixed(1)},${(H - P.b).toFixed(1)} L${P.l},${(H - P.b).toFixed(1)} Z`
-  const first = series[0].day
-  const last = series[series.length - 1].day
-  const mid = series[Math.floor(series.length / 2)].day
 
+  // y 轴网格线与刻度（0 / 中值 / 最大值）
   const yTicks = [0, Math.round(max / 2), max]
   const yLabels = [...new Set(yTicks)]
-  const xTicks = series.length > 1 ? [first, mid, last] : [last]
+  const yGrid = yLabels
+    .map((v, i) => {
+      const y = i === yLabels.length - 1 ? P.t : yAt(v)
+      return `<line x1="${P.l}" y1="${y.toFixed(1)}" x2="${W - P.r}" y2="${y.toFixed(1)}" stroke="#f1f5f9" stroke-width="1"/>
+<text x="${P.l - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#94a3b8" font-family="sans-serif">${v}</text>`
+    })
+    .join("\n")
+
+  const first = series[0].day
+  const last = series[series.length - 1].day
+
+  // 只有 1 个数据点（首个 Star）：画一条平线 + 端点圆点，避免除零产生 NaN
+  if (series.length === 1) {
+    const y = yAt(series[0].count).toFixed(1)
+    const xEnd = W - P.r
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  <rect width="${W}" height="${H}" fill="#ffffff"/>
+  ${yGrid}
+  <text x="${(P.l + iw / 2).toFixed(1)}" y="${H - P.b + 18}" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="sans-serif">${first}</text>
+  <path d="M${P.l},${y} L${xEnd},${y}" fill="none" stroke="${blue}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="${xEnd}" cy="${y}" r="4" fill="${blue}"/>
+  <text x="${xEnd - 8}" y="${(yAt(series[0].count) - 10).toFixed(1)}" text-anchor="end" font-size="12" font-weight="600" fill="#1e293b" font-family="sans-serif">${total} ★</text>
+  <text x="${P.l}" y="${20}" font-size="12" fill="#475569" font-family="sans-serif">${esc(repo)} · Star 增长趋势</text>
+</svg>`
+  }
+
+  const xAt = (i) => P.l + (i / (series.length - 1)) * iw
+  const path = series.map((p, i) => `${i === 0 ? "M" : "L"}${xAt(i).toFixed(1)},${yAt(p.count).toFixed(1)}`).join(" ")
+  const area = `${path} L${xAt(series.length - 1).toFixed(1)},${(H - P.b).toFixed(1)} L${P.l},${(H - P.b).toFixed(1)} Z`
+  const mid = series[Math.floor(series.length / 2)].day
+  const xTicks = [first, mid, last]
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <rect width="${W}" height="${H}" fill="#ffffff"/>
-  ${yLabels.map((v, i) => {
-    const y = i === yLabels.length - 1 ? P.t : yAt(v)
-    return `<line x1="${P.l}" y1="${y.toFixed(1)}" x2="${W - P.r}" y2="${y.toFixed(1)}" stroke="#f1f5f9" stroke-width="1"/>
-<text x="${P.l - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#94a3b8" font-family="sans-serif">${v}</text>`
-  }).join("\n")}
+  ${yGrid}
   ${xTicks.map((d) => `<text x="${(d === first ? P.l : d === last ? W - P.r : P.l + iw / 2).toFixed(1)}" y="${H - P.b + 18}" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="sans-serif">${d}</text>`).join("\n")}
   <path d="${area}" fill="${blue}" opacity="0.10"/>
   <path d="${path}" fill="none" stroke="${blue}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>

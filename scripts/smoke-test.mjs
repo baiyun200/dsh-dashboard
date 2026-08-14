@@ -91,6 +91,21 @@ try {
   const detailText = await page.evaluate(() => document.body.innerText)
   check("详情抽屉打开（含安装命令）", detailText.includes("安装命令") && detailText.includes("GitHub"))
   check("详情抽屉显示统计数据", detailText.includes("Star") && detailText.includes("Fork"))
+
+  // 5b. 详情抽屉过长时可滚动（回归：过长时曾无滚动条，底部内容被截断）
+  await page.setViewport({ width: 1440, height: 500 })
+  await new Promise((r) => setTimeout(r, 400))
+  const drawerScroll = await page.evaluate(() => {
+    const vp = document.querySelector('[data-slot="scroll-area-viewport"]')
+    const popup = document.querySelector('[data-slot="sheet-content"]')
+    return {
+      scrollable: vp ? vp.scrollHeight > vp.clientHeight : false,
+      noPopupOverflow: popup ? popup.scrollHeight <= popup.clientHeight + 1 : false,
+    }
+  })
+  check("详情抽屉过长时可滚动", drawerScroll.scrollable && drawerScroll.noPopupOverflow, JSON.stringify(drawerScroll))
+  await page.setViewport({ width: 1440, height: 2000 })
+
   // 关闭抽屉
   await page.keyboard.press("Escape")
   await new Promise((r) => setTimeout(r, 500))

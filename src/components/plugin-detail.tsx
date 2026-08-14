@@ -59,7 +59,7 @@ export function PluginDetail({ plugin, onOpenChange }: PluginDetailProps) {
               </div>
             </SheetHeader>
 
-            <ScrollArea className="flex-1">
+            <ScrollArea className="min-h-0 flex-1">
               <div className="space-y-5 px-5 py-4">
                 {/* 描述 */}
                 {plugin.description && (
