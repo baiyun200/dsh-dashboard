@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { Toaster, toast } from "sonner"
 
 import { GrowthChart } from "@/components/charts/growth-chart"
@@ -13,6 +13,7 @@ import { PluginTable } from "@/components/plugin-table"
 import { StatCards } from "@/components/stat-cards"
 import { snapshot } from "@/lib/data"
 import { fetchTopicRepos } from "@/lib/github"
+import { I18nProvider, useI18n } from "@/lib/i18n"
 import { ThemeProvider, useTheme } from "@/lib/theme"
 import type { DashboardData, Plugin, Stats } from "@/lib/types"
 
@@ -36,6 +37,7 @@ function initialData(): DashboardData {
 
 function Dashboard() {
   const { theme } = useTheme()
+  const { t } = useI18n()
   const [data, setData] = useState<DashboardData>(initialData)
   const [category, setCategory] = useState("")
   const [selected, setSelected] = useState<Plugin | null>(null)
@@ -47,8 +49,8 @@ function Dashboard() {
     const result = await fetchTopicRepos(data.plugins)
     setRefreshing(false)
     if (!result) {
-      toast.error("刷新失败", {
-        description: "GitHub API 请求受限或网络不可用，已保持当前数据。",
+      toast.error(t("toast.refreshFail"), {
+        description: t("toast.refreshFailDesc"),
       })
       return
     }
@@ -63,14 +65,10 @@ function Dashboard() {
     } catch {
       /* ignore */
     }
-    toast.success("数据已刷新", {
-      description: `已更新 ${result.plugins.length} 个仓库 · 话题总数 ${result.totalTopic}`,
+    toast.success(t("toast.refreshOk"), {
+      description: t("toast.refreshOkDesc", { n: result.plugins.length, total: result.totalTopic }),
     })
-  }, [data])
-
-  useEffect(() => {
-    document.title = "DSH 插件看板 · DeepSeek Harness 插件生态"
-  }, [])
+  }, [data, t])
 
   const stats = useMemo(() => data.stats, [data.stats])
   const plugins = useMemo(() => data.plugins, [data.plugins])
@@ -82,14 +80,13 @@ function Dashboard() {
       <main className="mx-auto max-w-[1440px] space-y-6 px-4 py-6 sm:px-6">
         {/* 简介 */}
         <section>
-          <h2 className="text-xl font-bold tracking-tight sm:text-2xl">DeepSeek Harness 插件生态</h2>
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl">{t("app.heroTitle")}</h2>
           <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            DeepSeek Harness 信奉「一切皆插件」——模型、工具、沙箱、会话存储、UI 乃至智能体循环本身都可以被插件替换与扩展。
-            本看板基于 GitHub{" "}
+            {t("app.heroDesc1")}{" "}
             <a href="https://github.com/topics/dsh-plugin" target="_blank" rel="noreferrer" className="font-medium text-primary hover:underline">
               dsh-plugin
             </a>{" "}
-            话题与社区精选列表，汇总插件的热度、语言、分类与活跃度。
+            {t("app.heroDesc2")}
           </p>
         </section>
 
@@ -107,13 +104,13 @@ function Dashboard() {
         {/* 分类总览 */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">分类总览</h3>
+            <h3 className="text-sm font-semibold">{t("app.categoryHeading")}</h3>
             {category && (
               <button
                 onClick={() => setCategory("")}
                 className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
-                清除筛选（当前：{category}）
+                {t("app.clearFilter", { cat: category })}
               </button>
             )}
           </div>
@@ -122,7 +119,7 @@ function Dashboard() {
 
         {/* 插件列表 */}
         <section className="space-y-3">
-          <h3 className="text-sm font-semibold">插件列表</h3>
+          <h3 className="text-sm font-semibold">{t("app.pluginHeading")}</h3>
           <PluginTable
             plugins={plugins}
             categoryFilter={category}
@@ -142,8 +139,10 @@ function Dashboard() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <Dashboard />
-    </ThemeProvider>
+    <I18nProvider>
+      <ThemeProvider>
+        <Dashboard />
+      </ThemeProvider>
+    </I18nProvider>
   )
 }

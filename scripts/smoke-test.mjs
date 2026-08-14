@@ -18,7 +18,8 @@ function check(name, ok, extra = "") {
 const browser = await puppeteer.launch({
   executablePath: CHROME,
   headless: "new",
-  args: ["--no-sandbox", "--disable-gpu"],
+  // --lang 在部分平台（macOS 系统语言）不生效，因此下面用 localStorage 显式固定中文，保证断言确定性
+  args: ["--no-sandbox", "--disable-gpu", "--lang=zh-CN"],
   defaultViewport: { width: 1440, height: 2000 },
 })
 
@@ -29,6 +30,13 @@ try {
     if (msg.type() === "error") check("控制台无 error", false, msg.text().slice(0, 200))
   })
 
+  await page.evaluateOnNewDocument(() => {
+    try {
+      localStorage.setItem("dsh-dash-lang", "zh")
+    } catch {
+      /* 首个空白文档可能无 origin，忽略；站点文档会再次执行 */
+    }
+  })
   await page.goto(URL, { waitUntil: "networkidle2", timeout: 30000 })
   await new Promise((r) => setTimeout(r, 1500))
 
@@ -150,6 +158,37 @@ try {
     countAfter !== null && countAfter >= (countBefore ?? 0),
     `刷新前 ${countBefore} → 刷新后 ${countAfter}`,
   )
+
+  // 8. 中英文切换：右上角语言按钮 → English，界面切换为英文
+  await page.evaluate(() => {
+    document.querySelector('[data-testid="lang-switch"]')?.click()
+  })
+  await new Promise((r) => setTimeout(r, 400))
+  await page.evaluate(() => {
+    const item = [...document.querySelectorAll('[data-slot="dropdown-menu-item"]')].find(
+      (i) => i.textContent?.trim() === "English",
+    )
+    item?.click()
+  })
+  await new Promise((r) => setTimeout(r, 600))
+  const enText = await page.evaluate(() => document.body.innerText)
+  const enTitle = await page.title()
+  check("切换到英文界面", enText.includes("Plugin Dashboard") && enText.includes("Refresh"), `标题: ${enTitle}`)
+  check("英文下分类显示英文名", enText.includes("Core & Official") || enText.includes("UI Enhancements"))
+  // 切回中文
+  await page.evaluate(() => {
+    document.querySelector('[data-testid="lang-switch"]')?.click()
+  })
+  await new Promise((r) => setTimeout(r, 400))
+  await page.evaluate(() => {
+    const item = [...document.querySelectorAll('[data-slot="dropdown-menu-item"]')].find(
+      (i) => i.textContent?.trim() === "简体中文",
+    )
+    item?.click()
+  })
+  await new Promise((r) => setTimeout(r, 600))
+  const zhBack = await page.evaluate(() => document.body.innerText)
+  check("切回中文界面", zhBack.includes("话题收录仓库"), "")
 } catch (err) {
   check("测试执行异常", false, String(err).slice(0, 300))
 } finally {

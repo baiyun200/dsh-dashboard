@@ -1,7 +1,7 @@
 import { Activity, Boxes, GitFork, Languages, Sparkles, Star } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { fmt } from "@/lib/data"
+import { useI18n } from "@/lib/i18n"
 import type { Stats } from "@/lib/types"
 
 const icons = {
@@ -18,47 +18,48 @@ interface StatCardsProps {
 }
 
 export function StatCards({ stats }: StatCardsProps) {
+  const { t, fmt } = useI18n()
   const cards = [
     {
       icon: "box" as const,
-      label: "话题收录仓库",
+      label: t("stat.repos"),
       value: fmt(stats.fetched),
-      hint: `GitHub dsh-plugin 话题共 ${fmt(stats.totalTopic)} 个`,
+      hint: t("stat.reposHint", { n: fmt(stats.totalTopic) }),
       accent: "text-blue-500 bg-blue-500/10",
     },
     {
       icon: "curated" as const,
-      label: "精选插件",
+      label: t("stat.curated"),
       value: fmt(stats.curated),
-      hint: "来自社区维护的 awesome 列表",
+      hint: t("stat.curatedHint"),
       accent: "text-violet-500 bg-violet-500/10",
     },
     {
       icon: "star" as const,
-      label: "累计 Star",
+      label: t("stat.stars"),
       value: fmt(stats.totalStars),
-      hint: `均分 ${fmt(Math.round(stats.totalStars / stats.fetched))}`,
+      hint: t("stat.starsHint", { n: fmt(Math.round(stats.totalStars / stats.fetched)) }),
       accent: "text-amber-500 bg-amber-500/10",
     },
     {
       icon: "fork" as const,
-      label: "累计 Fork",
+      label: t("stat.forks"),
       value: fmt(stats.totalForks),
-      hint: "社区复刻与协作",
+      hint: t("stat.forksHint"),
       accent: "text-emerald-500 bg-emerald-500/10",
     },
     {
       icon: "active" as const,
-      label: "近 30 天活跃",
+      label: t("stat.active"),
       value: fmt(stats.active30d),
-      hint: "有最新提交的仓库",
+      hint: t("stat.activeHint"),
       accent: "text-cyan-500 bg-cyan-500/10",
     },
     {
       icon: "lang" as const,
-      label: "开发语言",
+      label: t("stat.langs"),
       value: fmt(stats.languages),
-      hint: "TypeScript 主导的生态",
+      hint: t("stat.langsHint"),
       accent: "text-rose-500 bg-rose-500/10",
     },
   ]

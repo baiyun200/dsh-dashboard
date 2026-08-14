@@ -8,36 +8,6 @@ export const snapshot = rawData as DashboardData
 export const VISITOR_BADGE_URL =
   "https://visitor-badge.laobi.icu/badge?page_id=baiyun200.dsh-dashboard"
 
-/** 中文数字格式化：1.2 万 / 3.4 亿 */
-export function fmt(n: number): string {
-  if (n >= 1e8) return (n / 1e8).toFixed(2).replace(/\.?0+$/, "") + " 亿"
-  if (n >= 1e4) return (n / 1e4).toFixed(1).replace(/\.0$/, "") + " 万"
-  return n.toLocaleString("zh-CN")
-}
-
-/** 相对时间（中文） */
-export function timeAgo(iso: string): string {
-  const t = new Date(iso).getTime()
-  if (!Number.isFinite(t)) return "未知"
-  const diff = Date.now() - t
-  const min = Math.floor(diff / 60_000)
-  if (min < 1) return "刚刚"
-  if (min < 60) return `${min} 分钟前`
-  const hr = Math.floor(min / 60)
-  if (hr < 24) return `${hr} 小时前`
-  const day = Math.floor(hr / 24)
-  if (day < 30) return `${day} 天前`
-  const mon = Math.floor(day / 30)
-  if (mon < 12) return `${mon} 个月前`
-  return `${Math.floor(mon / 12)} 年前`
-}
-
-export function fmtDate(iso: string): string {
-  const d = new Date(iso)
-  if (!Number.isFinite(d.getTime())) return "—"
-  return d.toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" })
-}
-
 /** 分类 → 徽章样式（静态类名，便于 Tailwind 收集） */
 export const CATEGORY_BADGE: Record<string, string> = {
   核心与官方: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30",

@@ -3,12 +3,14 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
 import { ChartCard } from "./chart-card"
 import { ChartTooltip } from "./chart-tooltip"
+import { useI18n } from "@/lib/i18n"
 import type { Plugin } from "@/lib/types"
 
 const PALETTE = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)", "#e11d48", "#ec4899", "#0d9488", "#ea580c", "#a1a1aa"]
 
 /** 语言分布环形图 */
 export function LanguageDonut({ plugins }: { plugins: Plugin[] }) {
+  const { t } = useI18n()
   const data = useMemo(() => {
     const counts = new Map<string, number>()
     for (const p of plugins) counts.set(p.language, (counts.get(p.language) ?? 0) + 1)
@@ -16,12 +18,12 @@ export function LanguageDonut({ plugins }: { plugins: Plugin[] }) {
     const top = sorted.slice(0, 8)
     const rest = sorted.slice(8).reduce((s, [, c]) => s + c, 0)
     const rows = top.map(([name, count]) => ({ name, count }))
-    if (rest > 0) rows.push({ name: "其他", count: rest })
+    if (rest > 0) rows.push({ name: t("chart.other"), count: rest })
     return rows
-  }, [plugins])
+  }, [plugins, t])
 
   return (
-    <ChartCard title="语言分布" subtitle="按仓库数量统计的开发语言" className="h-full">
+    <ChartCard title={t("chart.donutTitle")} subtitle={t("chart.donutSubtitle")} className="h-full">
       <div className="flex h-[240px] items-center gap-2">
         <ResponsiveContainer width="55%" height="100%">
           <PieChart>
@@ -30,7 +32,7 @@ export function LanguageDonut({ plugins }: { plugins: Plugin[] }) {
                 <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
               ))}
             </Pie>
-            <Tooltip content={<ChartTooltip unit=" 个" />} />
+            <Tooltip content={<ChartTooltip unit={t("chart.reposUnit")} />} />
           </PieChart>
         </ResponsiveContainer>
         <div className="min-w-0 flex-1 space-y-1.5">

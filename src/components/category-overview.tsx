@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import type { Stats } from "@/lib/types"
 
@@ -23,28 +24,30 @@ interface CategoryOverviewProps {
 
 /** 分类总览：点击可筛选插件列表 */
 export function CategoryOverview({ stats, selected, onSelect }: CategoryOverviewProps) {
+  const { t, cat } = useI18n()
   const total = stats.fetched || 1
   const entries = Object.entries(stats.categories).sort((a, b) => b[1] - a[1])
 
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-      {entries.map(([cat, count]) => {
-        const active = selected === cat
+      {entries.map(([c, count]) => {
+        const active = selected === c
+        const label = cat(c)
         return (
           <button
-            key={cat}
-            onClick={() => onSelect(active ? "" : cat)}
+            key={c}
+            onClick={() => onSelect(active ? "" : c)}
             className={cn(
               "group relative overflow-hidden rounded-xl border bg-card p-3 text-left transition-all",
               active
                 ? "border-primary ring-2 ring-primary/20"
                 : "border-border hover:border-primary/40 hover:bg-accent/40",
             )}
-            title={active ? "点击取消筛选" : `筛选「${cat}」`}
+            title={active ? t("cat.clearTitle") : t("cat.filterTitle", { cat: label })}
           >
             <div className="flex items-center gap-2">
-              <span className="text-base leading-none">{CATEGORY_ICONS[cat] ?? "📦"}</span>
-              <span className="truncate text-xs font-medium">{cat}</span>
+              <span className="text-base leading-none">{CATEGORY_ICONS[c] ?? "📦"}</span>
+              <span className="truncate text-xs font-medium">{label}</span>
             </div>
             <p className="mt-2 text-xl font-bold tabular-nums">{count}</p>
             <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-muted">
@@ -53,7 +56,9 @@ export function CategoryOverview({ stats, selected, onSelect }: CategoryOverview
                 style={{ width: `${(count / total) * 100}%` }}
               />
             </div>
-            <p className="mt-1 text-[11px] text-muted-foreground">占 {((count / total) * 100).toFixed(1)}%</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {t("cat.percent", { p: ((count / total) * 100).toFixed(1) })}
+            </p>
           </button>
         )
       })}

@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { CATEGORY_BADGE, fmt, langColor, timeAgo } from "@/lib/data"
+import { CATEGORY_BADGE, langColor } from "@/lib/data"
+import { useI18n } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import type { Plugin } from "@/lib/types"
 
@@ -25,6 +26,7 @@ interface PluginTableProps {
 const PAGE_SIZES = [10, 20, 50]
 
 export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenDetail, loading }: PluginTableProps) {
+  const { t, fmt, timeAgo, cat, lang } = useI18n()
   const [query, setQuery] = useState("")
   const [language, setLanguage] = useState("all")
   const [sortKey, setSortKey] = useState<SortKey>("stars")
@@ -55,7 +57,7 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
           p.name.toLowerCase().includes(q) ||
           p.owner.toLowerCase().includes(q) ||
           p.description.toLowerCase().includes(q) ||
-          p.topics.some((t) => t.toLowerCase().includes(q)),
+          p.topics.some((tt) => tt.toLowerCase().includes(q)),
       )
     }
     const dir = asc ? 1 : -1
@@ -88,16 +90,16 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="搜索名称 / 作者 / 描述 / 主题标签…"
+            placeholder={t("table.searchPlaceholder")}
             className="pl-8"
           />
         </div>
         <Select value={categoryFilter || "all"} onValueChange={(v) => onCategoryChange(v && v !== "all" ? v : "")}>
           <SelectTrigger className="h-8 w-36" size="sm">
-            <SelectValue placeholder="全部分类" />
+            <SelectValue placeholder={t("table.allCategories")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部分类</SelectItem>
+            <SelectItem value="all">{t("table.allCategories")}</SelectItem>
             {Object.entries(
               plugins.reduce<Record<string, number>>((acc, p) => {
                 acc[p.category] = (acc[p.category] ?? 0) + 1
@@ -105,49 +107,49 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
               }, {}),
             )
               .sort((a, b) => b[1] - a[1])
-              .map(([cat, n]) => (
-                <SelectItem key={cat} value={cat}>
-                  {cat}（{n}）
+              .map(([c, n]) => (
+                <SelectItem key={c} value={c}>
+                  {t("table.catWithCount", { cat: cat(c), n })}
                 </SelectItem>
               ))}
           </SelectContent>
         </Select>
         <Select value={language} onValueChange={(v) => setLanguage(v ?? "all")}>
           <SelectTrigger className="h-8 w-32" size="sm">
-            <SelectValue placeholder="全部语言" />
+            <SelectValue placeholder={t("table.allLanguages")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">全部语言</SelectItem>
+            <SelectItem value="all">{t("table.allLanguages")}</SelectItem>
             {languages.map((l) => (
               <SelectItem key={l} value={l}>
-                {l}
+                {lang(l)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select value={sortKey} onValueChange={(v) => setSortKey((v ?? "stars") as SortKey)}>
           <SelectTrigger className="h-8 w-32" size="sm">
-            <SelectValue placeholder="排序" />
+            <SelectValue placeholder={t("table.sort")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="stars">按 Star</SelectItem>
-            <SelectItem value="forks">按 Fork</SelectItem>
-            <SelectItem value="updated">按最近更新</SelectItem>
-            <SelectItem value="created">按创建时间</SelectItem>
-            <SelectItem value="name">按名称</SelectItem>
+            <SelectItem value="stars">{t("table.sortStars")}</SelectItem>
+            <SelectItem value="forks">{t("table.sortForks")}</SelectItem>
+            <SelectItem value="updated">{t("table.sortUpdated")}</SelectItem>
+            <SelectItem value="created">{t("table.sortCreated")}</SelectItem>
+            <SelectItem value="name">{t("table.sortName")}</SelectItem>
           </SelectContent>
         </Select>
         <Button
           variant="outline"
           size="icon-sm"
           onClick={() => setAsc(!asc)}
-          title={asc ? "当前升序，点击切换降序" : "当前降序，点击切换升序"}
+          title={asc ? t("table.sortAsc") : t("table.sortDesc")}
         >
           <ArrowDownUp className="h-3.5 w-3.5" />
         </Button>
         <label className="flex h-8 items-center gap-1.5 rounded-lg border px-2 text-xs text-muted-foreground">
           <Switch checked={curatedOnly} onCheckedChange={setCuratedOnly} />
-          仅看精选
+          {t("table.curatedOnly")}
         </label>
       </div>
 
@@ -157,13 +159,13 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
           <TableHeader>
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-14 text-center">#</TableHead>
-              <TableHead>仓库</TableHead>
-              <TableHead className="hidden lg:table-cell">分类</TableHead>
-              <TableHead className="hidden md:table-cell">语言</TableHead>
+              <TableHead>{t("table.headRepo")}</TableHead>
+              <TableHead className="hidden lg:table-cell">{t("table.headCategory")}</TableHead>
+              <TableHead className="hidden md:table-cell">{t("table.headLanguage")}</TableHead>
               <TableHead className="text-right">Star</TableHead>
               <TableHead className="hidden text-right sm:table-cell">Fork</TableHead>
-              <TableHead className="hidden text-right sm:table-cell">最近更新</TableHead>
-              <TableHead className="w-16 text-right">操作</TableHead>
+              <TableHead className="hidden text-right sm:table-cell">{t("table.headUpdated")}</TableHead>
+              <TableHead className="w-16 text-right">{t("table.headActions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -198,11 +200,11 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
                             <div className="flex items-center gap-1">
                               <span className="truncate font-medium">{p.name}</span>
                               {p.curated && (
-                                <Sparkles className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label="精选" />
+                                <Sparkles className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label={t("table.curatedAria")} />
                               )}
                               {p.archived && (
                                 <Badge variant="secondary" className="shrink-0 px-1 py-0 text-[10px]">
-                                  已归档
+                                  {t("table.archived")}
                                 </Badge>
                               )}
                             </div>
@@ -212,13 +214,13 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <Badge variant="outline" className={cn("border", CATEGORY_BADGE[p.category] ?? "")}>
-                          {p.category}
+                          {cat(p.category)}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
                         <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: langColor(p.language) }} />
-                          {p.language}
+                          {lang(p.language)}
                         </span>
                       </TableCell>
                       <TableCell className="text-right font-medium tabular-nums">{fmt(p.stars)}</TableCell>
@@ -236,7 +238,7 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
                             e.stopPropagation()
                             onOpenDetail(p)
                           }}
-                          title="查看详情"
+                          title={t("table.viewDetail")}
                         >
                           <Eye className="h-3.5 w-3.5" />
                         </Button>
@@ -249,8 +251,8 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
         {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
             <SearchX className="h-8 w-8" />
-            <p className="text-sm">没有找到匹配的插件</p>
-            <p className="text-xs">试试调整搜索关键词或筛选条件</p>
+            <p className="text-sm">{t("table.emptyTitle")}</p>
+            <p className="text-xs">{t("table.emptyDesc")}</p>
           </div>
         )}
       </div>
@@ -258,8 +260,11 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
       {/* 分页 */}
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
         <p>
-          共 <span className="font-semibold text-foreground">{filtered.length}</span> 条 · 第{" "}
-          <span className="font-semibold text-foreground">{safePage}</span> / {totalPages} 页
+          {t("table.pagination", {
+            total: filtered.length,
+            page: safePage,
+            pages: totalPages,
+          })}
         </p>
         <div className="flex items-center gap-2">
           <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v ?? 20))}>
@@ -269,7 +274,7 @@ export function PluginTable({ plugins, categoryFilter, onCategoryChange, onOpenD
             <SelectContent>
               {PAGE_SIZES.map((s) => (
                 <SelectItem key={s} value={String(s)}>
-                  {s} 条/页
+                  {t("table.perPage", { size: s })}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -1,4 +1,4 @@
-import { fmt } from "@/lib/data"
+import { useI18n } from "@/lib/i18n"
 
 interface TooltipEntry {
   name?: string
@@ -8,7 +8,7 @@ interface TooltipEntry {
   payload?: Record<string, unknown>
 }
 
-/** recharts 通用中文提示框 */
+/** recharts 通用提示框（跟随界面语言） */
 export function ChartTooltip({
   active,
   payload,
@@ -22,6 +22,7 @@ export function ChartTooltip({
   unit?: string
   labelFormatter?: (v: string | number) => string
 }) {
+  const { fmt } = useI18n()
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-lg border bg-background/95 px-3 py-2 text-xs shadow-lg backdrop-blur">

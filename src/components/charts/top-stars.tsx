@@ -3,11 +3,13 @@ import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 
 
 import { ChartCard } from "./chart-card"
 import { ChartTooltip } from "./chart-tooltip"
-import { CATEGORY_COLOR, fmt } from "@/lib/data"
+import { CATEGORY_COLOR } from "@/lib/data"
+import { useI18n } from "@/lib/i18n"
 import type { Plugin } from "@/lib/types"
 
 /** Star 排行 Top 10（横向条形图） */
 export function TopStars({ plugins }: { plugins: Plugin[] }) {
+  const { t, fmt } = useI18n()
   const data = useMemo(
     () =>
       [...plugins]
@@ -23,7 +25,7 @@ export function TopStars({ plugins }: { plugins: Plugin[] }) {
   )
 
   return (
-    <ChartCard title="Star 排行 Top 10" subtitle="话题下最受欢迎的仓库" className="h-full">
+    <ChartCard title={t("chart.topTitle")} subtitle={t("chart.topSubtitle")} className="h-full">
       <div className="h-[280px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 36, left: 0, bottom: 0 }}>
@@ -49,7 +51,7 @@ export function TopStars({ plugins }: { plugins: Plugin[] }) {
         </ResponsiveContainer>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        榜首 <span className="font-semibold text-foreground">deepseek-harness</span> · {fmt(data[0]?.stars ?? 0)} ★
+        {t("chart.topFooter", { name: "deepseek-harness", n: fmt(data[0]?.stars ?? 0) })}
       </p>
     </ChartCard>
   )

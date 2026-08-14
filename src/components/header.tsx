@@ -1,8 +1,15 @@
-import { Eye, Github, Moon, RefreshCw, Sun } from "lucide-react"
+import { Eye, Github, Languages, Moon, RefreshCw, Sun } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { VISITOR_BADGE_URL } from "@/lib/data"
+import { useI18n, type Locale } from "@/lib/i18n"
 import { useTheme } from "@/lib/theme"
 
 interface HeaderProps {
@@ -11,9 +18,12 @@ interface HeaderProps {
   onRefresh: () => void
 }
 
+const LOCALE_LABEL: Record<Locale, string> = { zh: "中文", en: "EN" }
+
 export function Header({ fetchedAt, refreshing, onRefresh }: HeaderProps) {
   const { theme, toggle } = useTheme()
-  const time = new Date(fetchedAt).toLocaleString("zh-CN", {
+  const { locale, setLocale, t } = useI18n()
+  const time = new Date(fetchedAt).toLocaleString(locale === "zh" ? "zh-CN" : "en-US", {
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -30,25 +40,25 @@ export function Header({ fetchedAt, refreshing, onRefresh }: HeaderProps) {
         />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="truncate text-base font-bold tracking-tight sm:text-lg">DSH 插件看板</h1>
+            <h1 className="truncate text-base font-bold tracking-tight sm:text-lg">{t("header.title")}</h1>
             <Badge variant="outline" className="hidden sm:inline-flex">
-              DeepSeek Harness 插件生态
+              {t("header.badge")}
             </Badge>
           </div>
           <p className="truncate text-xs text-muted-foreground">
-            数据快照 · {time}
-            {refreshing ? " · 刷新中…" : ""}
+            {t("header.snapshot", { time })}
+            {refreshing ? t("header.refreshing") : ""}
           </p>
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <div
             className="hidden items-center gap-1.5 rounded-lg border bg-muted/40 px-2 py-1.5 lg:flex"
-            title="GitHub Pages 累计访问量（第三方计数服务，每次页面加载 +1）"
+            title={t("header.visitorTitle")}
           >
             <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">访问量</span>
-            <img src={VISITOR_BADGE_URL} alt="GitHub Pages 访问量" className="h-5 w-auto" />
+            <span className="text-xs text-muted-foreground">{t("header.visits")}</span>
+            <img src={VISITOR_BADGE_URL} alt={t("header.visitorAlt")} className="h-5 w-auto" />
           </div>
           <Button
             variant="outline"
@@ -56,12 +66,26 @@ export function Header({ fetchedAt, refreshing, onRefresh }: HeaderProps) {
             onClick={onRefresh}
             disabled={refreshing}
             className="gap-1.5"
-            title="从 GitHub 重新拉取 dsh-plugin 话题数据（Top 300）"
+            title={t("header.refreshTitle")}
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">刷新数据</span>
+            <span className="hidden sm:inline">{t("header.refresh")}</span>
           </Button>
-          <Button variant="ghost" size="icon" onClick={toggle} title={theme === "dark" ? "切换浅色模式" : "切换深色模式"}>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              data-testid="lang-switch"
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+              title={t("header.language")}
+            >
+              <Languages className="h-3.5 w-3.5" />
+              <span className="text-xs font-medium">{LOCALE_LABEL[locale]}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setLocale("zh")}>简体中文</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocale("en")}>English</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button variant="ghost" size="icon" onClick={toggle} title={theme === "dark" ? t("header.toggleLight") : t("header.toggleDark")}>
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           <a
@@ -69,7 +93,7 @@ export function Header({ fetchedAt, refreshing, onRefresh }: HeaderProps) {
             target="_blank"
             rel="noreferrer"
             className={buttonVariants({ variant: "ghost", size: "icon" })}
-            title="本看板源码仓库"
+            title={t("header.repoTitle")}
           >
             <Github className="h-4 w-4" />
           </a>
