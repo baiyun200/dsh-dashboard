@@ -91,7 +91,6 @@ try {
   const detailText = await page.evaluate(() => document.body.innerText)
   check("详情抽屉打开（含安装命令）", detailText.includes("安装命令") && detailText.includes("GitHub"))
   check("详情抽屉显示统计数据", detailText.includes("Star") && detailText.includes("Fork"))
-  check("详情抽屉含 Star 增长趋势", detailText.includes("Star 增长趋势"))
   // 关闭抽屉
   await page.keyboard.press("Escape")
   await new Promise((r) => setTimeout(r, 500))

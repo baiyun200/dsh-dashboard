@@ -9,6 +9,12 @@
 
 ![DSH 插件看板首页](docs/screenshot.png)
 
+## Star 增长趋势
+
+![Star 增长趋势](docs/star-history.svg)
+
+> 由 GitHub Actions 每日自动更新（使用 GITHUB_TOKEN 拉取官方 Stargazer 时间线生成）。
+
 ## 在线访问
 
 - **GitHub Pages**：<https://baiyun200.github.io/dsh-dashboard/>　[![访问量](https://visitor-badge.laobi.icu/badge?page_id=baiyun200.dsh-dashboard)](https://baiyun200.github.io/dsh-dashboard/)
@@ -17,7 +23,6 @@
 ## 功能
 
 - 👁️ **访问量展示**：页面右上角实时显示 GitHub Pages 累计访问量（第三方计数服务）
-- 📈 **Star 增长趋势**：插件详情抽屉内展示每个仓库的 Star 历史曲线（star-history.com），数据不可用时优雅降级
 
 - 📊 **统计卡片**：收录仓库数、精选插件数、累计 Star/Fork、近 30 天活跃、开发语言
 - 📈 **图表区**：

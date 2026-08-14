@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="320" viewBox="0 0 900 320">
+  <rect width="900" height="320" fill="#ffffff"/>
+  <line x1="56" y1="34" x2="56" y2="276" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="56" y1="276" x2="876" y2="276" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="450" y="150" text-anchor="middle" font-size="15" fill="#64748b" font-family="sans-serif">该仓库还没有 Star —— 等第一颗星点亮曲线 ✦</text>
+  <text x="450" y="178" text-anchor="middle" font-size="12" fill="#94a3b8" font-family="sans-serif">由 GitHub Actions 每日自动更新</text>
+</svg>

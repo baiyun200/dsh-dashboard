@@ -8,7 +8,7 @@ on:
     branches: [main] # 推送 main 时也部署（含数据/文档更新）
 
 permissions:
-  contents: read
+  contents: write # 提交 Star 增长趋势图需要写权限
   pages: write
   id-token: write
 
@@ -40,6 +40,23 @@ jobs:
 
       - name: 重新生成插件数据
         run: npm run data
+
+      - name: 生成仓库 Star 增长趋势图（README 用）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/star-history.mjs
+
+      - name: 提交 Star 趋势图更新（如有变化）
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/star-history.svg
+          if git diff --cached --quiet; then
+            echo "Star 趋势图无变化，跳过提交"
+          else
+            git commit -m "chore: 更新 Star 增长趋势图"
+            git push
+          fi
 
       - name: 构建站点（Pages 子路径）
         env:

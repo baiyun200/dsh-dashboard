@@ -6,7 +6,6 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { StarHistory } from "@/components/star-history"
 import { CATEGORY_BADGE, fmt, fmtDate, installCommand, langColor, timeAgo } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import type { Plugin } from "@/lib/types"
@@ -98,9 +97,6 @@ export function PluginDetail({ plugin, onOpenChange }: PluginDetailProps) {
                     </div>
                   ))}
                 </div>
-
-                {/* Star 增长趋势 */}
-                <StarHistory repo={plugin.id} />
 
                 {/* 主题标签 */}
                 {plugin.topics.length > 0 && (

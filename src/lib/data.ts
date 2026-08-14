@@ -8,11 +8,6 @@ export const snapshot = rawData as DashboardData
 export const VISITOR_BADGE_URL =
   "https://visitor-badge.laobi.icu/badge?page_id=baiyun200.dsh-dashboard"
 
-/** Star 增长趋势图（star-history.com 免费 API，返回 SVG） */
-export function starHistoryUrl(repo: string): string {
-  return `https://api.star-history.com/svg?repos=${encodeURIComponent(repo)}&type=Date`
-}
-
 /** 中文数字格式化：1.2 万 / 3.4 亿 */
 export function fmt(n: number): string {
   if (n >= 1e8) return (n / 1e8).toFixed(2).replace(/\.?0+$/, "") + " 亿"
