@@ -1,0 +1,59 @@
+name: 每日构建 & 部署 GitHub Pages
+
+on:
+  schedule:
+    - cron: "30 1 * * *" # 每天 01:30 UTC（北京时间 09:30）重新抓取数据并部署
+  workflow_dispatch: # 支持在 Actions 页面手动触发
+  push:
+    branches: [main] # 推送 main 时也部署（含数据/文档更新）
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 抓取最新数据（GitHub dsh-plugin 话题快照）
+        run: bash scripts/fetch-data.sh
+
+      - name: 重新生成插件数据
+        run: npm run data
+
+      - name: 构建站点（Pages 子路径）
+        env:
+          VITE_BASE: /${{ github.event.repository.name }}/
+        run: npm run build
+
+      - name: 配置 GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传构建产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

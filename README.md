@@ -9,6 +9,11 @@
 
 ![DSH 插件看板首页](docs/screenshot.png)
 
+## 在线访问
+
+- **GitHub Pages**：<https://baiyun200.github.io/dsh-dashboard/>
+- 由 GitHub Actions 每日自动构建部署：每天 01:30 UTC（北京时间 09:30）重新抓取 `dsh-plugin` 话题数据并发布；推送 `main` 或手动触发（Actions → 每日构建 & 部署 GitHub Pages → Run workflow）也会重新部署。
+
 ## 功能
 
 - 📊 **统计卡片**：收录仓库数、精选插件数、累计 Star/Fork、近 30 天活跃、开发语言

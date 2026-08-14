@@ -22,7 +22,11 @@ export function Header({ fetchedAt, refreshing, onRefresh }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-3 px-4 sm:px-6">
-        <img src="/whale.svg" alt="DeepSeek Harness" className="h-9 w-9 shrink-0 rounded-lg" />
+        <img
+          src={`${import.meta.env.BASE_URL}whale.svg`}
+          alt="DeepSeek Harness"
+          className="h-9 w-9 shrink-0 rounded-lg"
+        />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h1 className="truncate text-base font-bold tracking-tight sm:text-lg">DSH 插件看板</h1>

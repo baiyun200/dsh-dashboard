@@ -6,6 +6,9 @@ import { defineConfig } from "vite"
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages 项目站点部署在子路径下（如 /dsh-dashboard/），
+  // 由 CI 通过 VITE_BASE 注入；本地开发默认根路径。
+  base: process.env.VITE_BASE ?? "/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
