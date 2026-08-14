@@ -5,6 +5,10 @@
 
 > DeepSeek Harness：Everything is a Plugin。模型、工具、沙箱、会话存储、UI 乃至智能体循环都可以用插件替换与扩展。
 
+## 首页预览
+
+![DSH 插件看板首页](docs/screenshot.png)
+
 ## 功能
 
 - 📊 **统计卡片**：收录仓库数、精选插件数、累计 Star/Fork、近 30 天活跃、开发语言
