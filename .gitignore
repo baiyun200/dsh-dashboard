@@ -3,3 +3,6 @@ dist/
 .DS_Store
 *.log
 data/raw/
+data/v2ex/
+docs/v2ex-posting.md
+scripts/v2ex-post.sh
